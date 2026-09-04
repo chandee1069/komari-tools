@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 如果脚本不是在 /usr/local/bin/komari-box 路径运行，则自动复制自己过去，实现全局命令注册
+# 全局命令注册
 if [ "$0" != "/usr/local/bin/komari-box" ] && [ -f "$0" ]; then
     cp "$0" /usr/local/bin/komari-box 2>/dev/null && chmod +x /usr/local/bin/komari-box
 fi
@@ -13,8 +13,7 @@ get_ip() {
 }
 
 show_menu() {
-    clear
-    echo -e "${GREEN}=====================================${PLAIN}"
+    echo -e "\n${GREEN}=====================================${PLAIN}"
     echo -e "${GREEN}      Komari 探针纯净管理工具箱      ${PLAIN}"
     echo -e "${GREEN}=====================================${PLAIN}"
     echo -e " 1. 安装 / 重新安装 Komari 面板"
@@ -36,7 +35,7 @@ show_menu() {
             get_ip
             echo -e "\n${GREEN}Komari 已成功安装！${PLAIN}"
             echo -e "IP 直连访问地址: ${YELLOW}http://${IP}:${PORT}${PLAIN}"
-            read -p "按回车键返回菜单..." ; show_menu ;;
+            ;;
         2)
             echo -e "${YELLOW}\n正在更新 Komari...${PLAIN}"
             OLD_PORT=$(docker inspect --format='{{(index (index .HostConfig.PortBindings "25774/tcp") 0).HostPort}}' komari 2>/dev/null); OLD_PORT=${OLD_PORT:-8090}
@@ -46,16 +45,18 @@ show_menu() {
             get_ip
             echo -e "\n${GREEN}Komari 更新完成！${PLAIN}"
             echo -e "访问地址: ${YELLOW}http://${IP}:${OLD_PORT}${PLAIN}"
-            read -p "按回车键返回菜单..." ; show_menu ;;
+            ;;
         3)
             docker rm -f komari komari-caddy 2>/dev/null; rm -rf /var/lib/komari /etc/caddy 2>/dev/null
-            echo -e "${GREEN}\n环境已彻底清理！${PLAIN}"; read -p "按回车键返回菜单..." ; show_menu ;;
+            echo -e "${GREEN}\n环境已彻底清理！${PLAIN}"
+            ;;
         4)
             read -p "请输入要放行的端口: " PORT
             ufw allow ${PORT}/tcp 2>/dev/null || iptables -I INPUT -p tcp --dport ${PORT} -j ACCEPT 2>/dev/null
-            echo -e "${GREEN}\n端口 ${PORT} 已放行。${PLAIN}"; read -p "按回车键返回菜单..." ; show_menu ;;
+            echo -e "${GREEN}\n端口 ${PORT} 已放行。${PLAIN}"
+            ;;
         5)
-            read -p "请输入你的绑定域名: " DOMAIN; [ -z "$DOMAIN" ] && show_menu && return
+            read -p "请输入你的绑定域名: " DOMAIN; [ -z "$DOMAIN" ] && return
             read -p "请输入 Komari 当前面板端口 [默认 8090]: " PORT; PORT=${PORT:-8090}
             DOCKER_GATEWAY=$(docker network inspect bridge --format='{{(index .IPAM.Config 0).Gateway}}' 2>/dev/null); DOCKER_GATEWAY=${DOCKER_GATEWAY:-172.17.0.1}
             mkdir -p /etc/caddy
@@ -69,9 +70,9 @@ CADDY_EOF
             ufw allow 80/tcp 2>/dev/null || iptables -I INPUT -p tcp --dport 80 -j ACCEPT 2>/dev/null
             echo -e "\n${GREEN}域名反代配置成功！${PLAIN}"
             echo -e "域名访问地址: ${YELLOW}http://${DOMAIN}${PLAIN}"
-            read -p "按回车键返回菜单..." ; show_menu ;;
+            ;;
         0) exit 0 ;;
-        *) show_menu ;;
+        *) exit 0 ;;
     esac
 }
 
