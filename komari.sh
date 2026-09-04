@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 全局命令注册
+# 全局命令注册（自动复制到系统路径）
 if [ "$0" != "/usr/local/bin/komari-box" ] && [ -f "$0" ]; then
     cp "$0" /usr/local/bin/komari-box 2>/dev/null && chmod +x /usr/local/bin/komari-box
 fi
@@ -23,11 +23,11 @@ show_menu() {
     echo -e " 5. 添加 / 修改域名访问 (Cloudflare反代)"
     echo -e " 0. 退出脚本"
     echo -e "${GREEN}=====================================${PLAIN}"
-    read -p "请输入选项 [0-5]: " num
+    read -p "请输入选项 [0-5]: " num < /dev/tty
 
     case "$num" in
         1)
-            read -p "请输入面板映射端口 [默认 8090]: " PORT; PORT=${PORT:-8090}
+            read -p "请输入面板映射端口 [默认 8090]: " PORT < /dev/tty; PORT=${PORT:-8090}
             command -v docker &>/dev/null || curl -fsSL https://get.docker.com | sh
             docker rm -f komari 2>/dev/null
             docker run -d --name komari --restart always -p ${PORT}:25774 -v /var/lib/komari:/app/data ghcr.io/komari-monitor/komari:latest
@@ -51,13 +51,13 @@ show_menu() {
             echo -e "${GREEN}\n环境已彻底清理！${PLAIN}"
             ;;
         4)
-            read -p "请输入要放行的端口: " PORT
+            read -p "请输入要放行的端口: " PORT < /dev/tty
             ufw allow ${PORT}/tcp 2>/dev/null || iptables -I INPUT -p tcp --dport ${PORT} -j ACCEPT 2>/dev/null
             echo -e "${GREEN}\n端口 ${PORT} 已放行。${PLAIN}"
             ;;
         5)
-            read -p "请输入你的绑定域名: " DOMAIN; [ -z "$DOMAIN" ] && return
-            read -p "请输入 Komari 当前面板端口 [默认 8090]: " PORT; PORT=${PORT:-8090}
+            read -p "请输入你的绑定域名: " DOMAIN < /dev/tty; [ -z "$DOMAIN" ] && return
+            read -p "请输入 Komari 当前面板端口 [默认 8090]: " PORT < /dev/tty; PORT=${PORT:-8090}
             DOCKER_GATEWAY=$(docker network inspect bridge --format='{{(index .IPAM.Config 0).Gateway}}' 2>/dev/null); DOCKER_GATEWAY=${DOCKER_GATEWAY:-172.17.0.1}
             mkdir -p /etc/caddy
             cat << CADDY_EOF > /etc/caddy/Caddyfile
