@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# 全局命令注册（自动复制到系统路径）
-if [ "$0" != "/usr/local/bin/komari-box" ] && [ -f "$0" ]; then
-    cp "$0" /usr/local/bin/komari-box 2>/dev/null && chmod +x /usr/local/bin/komari-box
+# 全局命令自动注册（判断如果系统里还没有快捷命令，就自动下载保存一份）
+if [ ! -f "/usr/local/bin/komari-box" ]; then
+    curl -sL "https://raw.githubusercontent.com/chandee1069/komari-tools/main/komari.sh" -o /usr/local/bin/komari-box 2>/dev/null
+    chmod +x /usr/local/bin/komari-box 2>/dev/null
 fi
 
-RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[0;33m'; PLAIN='\033[0m'
 
-get_ip() { 
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[0;33m'; PLAIN='\033[0m'
     IP=$(curl -s4 --max-time 3 https://api.ipify.org || curl -s4 --max-time 3 https://ipv4.icanhazip.com)
     IP=${IP:-"你的VPS_IP"}
 }
