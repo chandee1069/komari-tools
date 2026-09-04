@@ -1,7 +1,17 @@
-cat << 'EOF' > /usr/local/bin/komari-box
 #!/bin/bash
+
+# 如果脚本不是在 /usr/local/bin/komari-box 路径运行，则自动复制自己过去，实现全局命令注册
+if [ "$0" != "/usr/local/bin/komari-box" ] && [ -f "$0" ]; then
+    cp "$0" /usr/local/bin/komari-box 2>/dev/null && chmod +x /usr/local/bin/komari-box
+fi
+
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[0;33m'; PLAIN='\033[0m'
-get_ip() { IP=$(curl -s4 --max-time 3 https://api.ipify.org || curl -s4 --max-time 3 https://ipv4.icanhazip.com); IP=${IP:-"你的VPS_IP"}; }
+
+get_ip() { 
+    IP=$(curl -s4 --max-time 3 https://api.ipify.org || curl -s4 --max-time 3 https://ipv4.icanhazip.com)
+    IP=${IP:-"你的VPS_IP"}
+}
+
 show_menu() {
     clear
     echo -e "${GREEN}=====================================${PLAIN}"
@@ -15,6 +25,7 @@ show_menu() {
     echo -e " 0. 退出脚本"
     echo -e "${GREEN}=====================================${PLAIN}"
     read -p "请输入选项 [0-5]: " num
+
     case "$num" in
         1)
             read -p "请输入面板映射端口 [默认 8090]: " PORT; PORT=${PORT:-8090}
@@ -63,7 +74,5 @@ CADDY_EOF
         *) show_menu ;;
     esac
 }
-show_menu
-EOF
 
-chmod +x /usr/local/bin/komari-box && komari-box
+show_menu
