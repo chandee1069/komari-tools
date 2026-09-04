@@ -6,8 +6,9 @@ if [ ! -f "/usr/local/bin/komari-box" ]; then
     chmod +x /usr/local/bin/komari-box 2>/dev/null
 fi
 
-
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[0;33m'; PLAIN='\033[0m'
+
+get_ip() {
     IP=$(curl -s4 --max-time 3 https://api.ipify.org || curl -s4 --max-time 3 https://ipv4.icanhazip.com)
     IP=${IP:-"你的VPS_IP"}
 }
