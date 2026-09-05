@@ -59,11 +59,10 @@ show_menu() {
         5)
             read -p "请输入你的绑定域名: " DOMAIN < /dev/tty; [ -z "$DOMAIN" ] && return
             read -p "请输入 Komari 当前面板端口 [默认 8090]: " PORT < /dev/tty; PORT=${PORT:-8090}
-            DOCKER_GATEWAY=$(docker network inspect bridge --format='{{(index .IPAM.Config 0).Gateway}}' 2>/dev/null); DOCKER_GATEWAY=${DOCKER_GATEWAY:-172.17.0.1}
             mkdir -p /etc/caddy
             cat << CADDY_EOF > /etc/caddy/Caddyfile
 http://$DOMAIN {
-    reverse_proxy $DOCKER_GATEWAY:$PORT
+    reverse_proxy 127.0.0.1:$PORT
 }
 CADDY_EOF
             docker rm -f komari-caddy 2>/dev/null
